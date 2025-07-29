@@ -3,10 +3,7 @@ package com.order.ordersystem.member.controller;
 import com.order.ordersystem.common.auth.JwtTokenProvider;
 import com.order.ordersystem.common.dto.CommonDto;
 import com.order.ordersystem.member.domain.Member;
-import com.order.ordersystem.member.dto.LoginReqDto;
-import com.order.ordersystem.member.dto.LoginResDto;
-import com.order.ordersystem.member.dto.MemberCreateDto;
-import com.order.ordersystem.member.dto.MemberResDto;
+import com.order.ordersystem.member.dto.*;
 import com.order.ordersystem.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -56,12 +53,23 @@ public class MemberController {
     }
 
     // rt를 통한 at 갱신 요청
-    @PostMapping("/refresh-ar")
-    public ResponseEntity<?> generateNewAt(){
+    @PostMapping("/refresh-at")
+    public ResponseEntity<?> generateNewAt(@RequestBody RefreshTokenDto refreshTokenDto){
         //rt 검증 로직
-
+        Member member = jwtTokenProvider.validateRt(refreshTokenDto.getRefreshToken());
         // at 신규 생성
-        return null;
+        String accessToken = jwtTokenProvider.createToken(member);
+
+        LoginResDto loginResDto = LoginResDto.builder()
+                .accessToken(accessToken)
+                .build();
+
+        return new ResponseEntity<>(CommonDto.builder()
+                .result(loginResDto)
+                .statusCode(HttpStatus.OK.value())
+                .statusMessage("login success")
+                .build()
+                ,HttpStatus.OK);
     }
     @GetMapping("/list")
     @PreAuthorize("hasRole('ADMIN')")

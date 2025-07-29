@@ -34,4 +34,5 @@ public class Member {
     public void deleteMember(String delYn) {
         this.delYn=delYn;
     }
+
 }
