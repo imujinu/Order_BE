@@ -6,9 +6,12 @@ import com.order.ordersystem.ordering.domain.OrderStatus;
 import com.order.ordersystem.ordering.domain.Ordering;
 import com.order.ordersystem.ordering.domain.OrderingDetail;
 import com.order.ordersystem.ordering.dto.OrderCreateDto;
+import com.order.ordersystem.ordering.dto.OrderDetail;
+import com.order.ordersystem.ordering.dto.OrderListResDto;
 import com.order.ordersystem.ordering.dto.TestDto;
 import com.order.ordersystem.ordering.repository.OrderDetailRepository;
 import com.order.ordersystem.ordering.repository.OrderingRepository;
+import com.order.ordersystem.product.domain.Product;
 import com.order.ordersystem.product.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,41 +33,64 @@ public class OrderingService {
     private final ProductRepository productRepository;
 
 
-    public Ordering create(List<OrderCreateDto> orderCreateDto) {
+    public Object create(List<OrderCreateDto> orderCreateDto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("존재하지 않는 유저입니다."));
         Ordering ordering = orderingRepository.save(Ordering.builder()
                         .member(member)
                         .build());
-        List<OrderingDetail> orderings = orderCreateDto.stream().map(a-> OrderingDetail.builder()
-                .product(productRepository.findById(a.getProductId()).orElseThrow(()-> new EntityNotFoundException("상품이 존재하지 않습니다.")))
-                .quantity(a.getProductCount())
-                .ordering(ordering).build()).collect(Collectors.toList());
+        StringBuffer sb = new StringBuffer();
 
-        for(OrderingDetail o : orderings){
-            ordering.getOrderingDetails().add(o);
+        List<OrderingDetail> orderingDetails = new ArrayList<>();
+
+        orderCreateDto.forEach(a -> {
+            Product product = productRepository.findById(a.getProductId())
+                    .orElseThrow(() -> new EntityNotFoundException("상품이 존재하지 않습니다."));
+
+            if (a.getProductCount() > product.getStockQuantity()) {
+               sb.append(product.getName() + "의 재고가 부족합니다.\n");
+            }else{
+                product.minusStock(a.getProductCount());
+                orderingDetails.add(OrderingDetail.builder()
+                        .product(product)
+                        .quantity(a.getProductCount())
+                        .ordering(ordering)
+                        .build());
+            }
+        });
+
+        if(!sb.isEmpty()){
+            throw new IllegalArgumentException(sb.toString());
+        }else{
+            ordering.getOrderingDetails().addAll(orderingDetails);
+            return ordering;
         }
-        return ordering;
     }
 
-    public Ordering test(TestDto testDto) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("존재하지 않는 유저입니다."));
-        Ordering ordering = orderingRepository.save(Ordering.builder()
-                .member(member)
-                .build());
-        List<OrderingDetail> orderingDetails = testDto.getDetail().stream().map((a)->OrderingDetail.builder()
-                .product(productRepository.findById(a.getProductId()).orElseThrow(()-> new EntityNotFoundException("상품이 존재하지 않습니다.")))
-                .quantity(a.getProductCount())
-                .storeId(testDto.getStoreId())
-                .payment(testDto.getPayment())
-                .ordering(ordering)
-                .build()).collect(Collectors.toList());
 
-        for(OrderingDetail o : orderingDetails){
-            ordering.getOrderingDetails().add(o);
-        }
+    public List<OrderListResDto> findAll() {
+        List<Ordering> orderings = orderingRepository.findAll();
+        List<OrderListResDto> orderListResDtos = new ArrayList<>();
+        orderings.forEach(a -> {
+            String email = a.getMember().getEmail();
+            OrderStatus orderStatus = a.getOrderStatus();
+            List<OrderingDetail> orderingDetails = orderDetailRepository.findAllByOrderingId(a.getId());
+            orderListResDtos.add(OrderListResDto.builder()
+                    .id(a.getId())
+                    .memberEmail(email)
+                    .orderStatus(orderStatus)
+                    .orderingDetailList(orderingDetails.stream().map(b->{
+                        return OrderDetail.builder()
+                                .orderDetailId(a.getId())
+                                .productName(productRepository.findById(b.getProduct().getId()).orElseThrow(()->new EntityNotFoundException("존재하지 않는 상품입니다.")).getName())
+                                .productCount(b.getQuantity())
+                                .build();
 
-        return ordering;
+
+                    }).collect(Collectors.toList()))
+                    .build());
+        });
+        return orderListResDtos;
     }
+
 }

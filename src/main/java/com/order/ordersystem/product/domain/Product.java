@@ -39,4 +39,8 @@ public class Product {
         this.category = productUpdateDto.getCategory();
         this.stockQuantity = productUpdateDto.getStockQuantity();
     }
+
+    public void minusStock(int productCount) {
+        this.stockQuantity-=productCount;
+    }
 }
