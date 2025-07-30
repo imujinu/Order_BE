@@ -6,6 +6,7 @@ import com.order.ordersystem.product.domain.Product;
 import com.order.ordersystem.product.dto.ProductSearchDto;
 import com.order.ordersystem.product.dto.ProductCreateDto;
 import com.order.ordersystem.product.dto.ProductResDto;
+import com.order.ordersystem.product.dto.ProductUpdateDto;
 import com.order.ordersystem.product.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +44,9 @@ public class ProductService {
         Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("존재하지 않는 유저입니다."));
 
         String fileName = "product-"+member.getId()+"-productImage-"+productCreateDto.getProductImage().getOriginalFilename();
+        Product lastProduct = productRepository.findTopByOrderByIdDesc();
+        Long nextId = (lastProduct != null) ? lastProduct.getId() + 1 : 1L;
+
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
@@ -57,6 +61,8 @@ public class ProductService {
             // checked -> unchecked로 바꿔 전체 rollback 되도록 예외처리
             throw new IllegalArgumentException("예상못한 에러!!");
         }
+        // 이미지 삭제 시
+//        s3Client.deleteObject(a->a.bucket(bucket).key(fileName));
 
         //이미지 url 추출
         String imgUrl = s3Client.utilities().getUrl(a->a.bucket(bucket).key(fileName)).toExternalForm();
@@ -97,5 +103,42 @@ public class ProductService {
     public ProductResDto detail(Long id) {
         Product product =  productRepository.findById(id).orElseThrow(()->new EntityNotFoundException("해당 물건이 존재하지 않습니다."));
         return new ProductResDto().fromEntity(product);
+    }
+
+    public Product update(Long id, ProductUpdateDto productUpdateDto) {
+         Product prevProduct = productRepository.findById(id).orElseThrow(()->new EntityNotFoundException("해당 상품이 존재하지 않습니다."));
+         prevProduct.updateProduct(productUpdateDto);
+         if(productUpdateDto.getProductImage()!=null && !productUpdateDto.getProductImage().isEmpty()){
+
+         //기존 이미지를 삭제
+            String imgUrl = prevProduct.getImagePath();
+            //https://jin-ordersystem-bucket.s3.ap-northeast-2.amazonaws.com/product-1-productImage-T07SG50B615-U07SWB36DQE-9a52b35efb20-512.jpg
+            String fileName = imgUrl.substring(imgUrl.lastIndexOf("/")+1);
+            s3Client.deleteObject(a->a.bucket(bucket).key(fileName));
+
+             String newFileName = "product-"+prevProduct.getId()+"-productImage-"+productUpdateDto.getProductImage().getOriginalFilename();
+
+        //신규 이미지 등록
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(newFileName)
+                .contentType(productUpdateDto.getProductImage().getContentType()) // image//jpg
+                .build();
+        try {
+            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(productUpdateDto.getProductImage().getBytes()));
+        } catch(IOException e ){
+            throw new IllegalArgumentException("IOEerror!!");
+        }   catch (Exception e) {
+            // checked -> unchecked로 바꿔 전체 rollback 되도록 예외처리
+            throw new IllegalArgumentException("예상못한 에러!!");
+        }
+
+        String newImgUrl = s3Client.utilities().getUrl(a->a.bucket(bucket).key(newFileName)).toExternalForm();
+        prevProduct.updateUrl(newImgUrl);
+         }else{
+             prevProduct.updateUrl(null);
+         }
+        return prevProduct;
+
     }
 }

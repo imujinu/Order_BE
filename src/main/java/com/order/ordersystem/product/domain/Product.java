@@ -1,6 +1,7 @@
 package com.order.ordersystem.product.domain;
 
 import com.order.ordersystem.member.domain.Member;
+import com.order.ordersystem.product.dto.ProductUpdateDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,5 +29,14 @@ public class Product {
 
     private String imagePath;
 
+    public void updateUrl(String url){
+        this.imagePath=url;
+    }
 
+    public void updateProduct(ProductUpdateDto productUpdateDto) {
+        this.name = productUpdateDto.getName();
+        this.price = productUpdateDto.getPrice();
+        this.category = productUpdateDto.getCategory();
+        this.stockQuantity = productUpdateDto.getStockQuantity();
+    }
 }

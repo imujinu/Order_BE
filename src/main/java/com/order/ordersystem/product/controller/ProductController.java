@@ -1,9 +1,11 @@
 package com.order.ordersystem.product.controller;
 
 import com.order.ordersystem.common.dto.CommonDto;
+import com.order.ordersystem.product.domain.Product;
 import com.order.ordersystem.product.dto.ProductSearchDto;
 import com.order.ordersystem.product.dto.ProductCreateDto;
 import com.order.ordersystem.product.dto.ProductResDto;
+import com.order.ordersystem.product.dto.ProductUpdateDto;
 import com.order.ordersystem.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -51,6 +53,18 @@ public class ProductController {
                 .statusCode(HttpStatus.CREATED.value())
                 .statusMessage("상품조회완료")
                 .build(), HttpStatus.CREATED);
+
+    }
+
+    @PutMapping("/update/{id}")
+    ResponseEntity<?> update(@PathVariable Long id, ProductUpdateDto productUpdateDto){
+         Product product = productService.update(id, productUpdateDto);
+        return new ResponseEntity<>(CommonDto.builder()
+                .result(product.getId())
+                .statusCode(HttpStatus.ACCEPTED.value())
+                .statusMessage("상품수정완료")
+                .build(), HttpStatus.ACCEPTED);
+
 
     }
 }

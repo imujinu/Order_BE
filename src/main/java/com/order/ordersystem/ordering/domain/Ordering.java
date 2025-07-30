@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @AllArgsConstructor
@@ -23,4 +26,8 @@ public class Ordering {
 
     @Builder.Default
     private OrderStatus orderStatus = OrderStatus.ORDERED;
+
+    @OneToMany(mappedBy = "ordering", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<OrderingDetail> orderingDetails = new ArrayList<>();
 }
