@@ -21,7 +21,7 @@ public class OrderingController {
 
     @PostMapping("/create")
     ResponseEntity<?> create(@RequestBody List<OrderCreateDto> orderCreateDto){
-        Object orderResult = orderingService.create(orderCreateDto);
+        Object orderResult = orderingService.createConcurrent(orderCreateDto);
         return new ResponseEntity<>(CommonDto.builder()
                 .result(orderResult)
                 .statusCode(HttpStatus.CREATED.value())
@@ -32,6 +32,16 @@ public class OrderingController {
     @GetMapping("/list")
     ResponseEntity<?> findAll(){
         List<OrderListResDto> dtos = orderingService.findAll();
+        return new ResponseEntity<>(CommonDto.builder()
+                .result(dtos)
+                .statusCode(HttpStatus.CREATED.value())
+                .statusMessage("주문 목록 조회 완료")
+                .build(), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/myorders")
+    ResponseEntity<?> myorders(){
+        List<OrderListResDto> dtos = orderingService.findByMember();
         return new ResponseEntity<>(CommonDto.builder()
                 .result(dtos)
                 .statusCode(HttpStatus.CREATED.value())

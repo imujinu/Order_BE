@@ -1,5 +1,6 @@
 package com.order.ordersystem.ordering.domain;
 
+import com.order.ordersystem.common.domain.BaseTimeEntity;
 import com.order.ordersystem.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Ordering {
+public class Ordering extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
