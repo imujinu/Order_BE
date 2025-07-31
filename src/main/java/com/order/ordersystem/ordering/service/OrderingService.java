@@ -1,5 +1,7 @@
 package com.order.ordersystem.ordering.service;
 
+import com.order.ordersystem.common.service.StockInventoryService;
+import com.order.ordersystem.common.service.StockRabbitMqService;
 import com.order.ordersystem.member.domain.Member;
 import com.order.ordersystem.member.repository.MemberRepository;
 import com.order.ordersystem.ordering.domain.OrderStatus;
@@ -17,6 +19,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -31,7 +34,8 @@ public class OrderingService {
     private final MemberRepository memberRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final ProductRepository productRepository;
-
+    private final StockInventoryService stockInventoryService;
+    private final StockRabbitMqService stockRabbitMqService;
 
     public Object create(List<OrderCreateDto> orderCreateDto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -99,6 +103,8 @@ public class OrderingService {
         return orderListResDtos;
     }
 
+    //격리 레벨을 낮춤으로서 성능 향상과, lock 관련 문제 원천 차단.
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Object createConcurrent(List<OrderCreateDto> orderCreateDto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("존재하지 않는 유저입니다."));
@@ -118,12 +124,16 @@ public class OrderingService {
             }else{
 
                 // redis에서 재고수량 확인 및 재고수량 감소 처리
-                product.minusStock(a.getProductCount());
-                orderingDetails.add(OrderingDetail.builder()
+              int newQuantity =  stockInventoryService.decreaseStockQuantity(a.getProductId(), a.getProductCount());
+              if(newQuantity < 0 ){
+                  throw new IllegalArgumentException( "재고부족");
+              }
+                  orderingDetails.add(OrderingDetail.builder()
                         .product(product)
                         .quantity(a.getProductCount())
                         .ordering(ordering)
                         .build());
+                stockRabbitMqService.publish(a.getProductId(), a.getProductCount());
             }
         });
 
