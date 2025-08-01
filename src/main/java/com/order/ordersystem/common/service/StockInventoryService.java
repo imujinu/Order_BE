@@ -16,6 +16,7 @@ public class StockInventoryService {
     public void makeStockQuantity(Long productId, int quantity){
         redisTemplate.opsForValue().set(String.valueOf(productId), String.valueOf(quantity));
     }
+
     // 주문 성공 시 재고수량 감소
     public int decreaseStockQuantity(Long productId, int orderQuantity){
         String remainObject = redisTemplate.opsForValue().get(String.valueOf(productId));

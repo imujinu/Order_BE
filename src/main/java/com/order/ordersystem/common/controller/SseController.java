@@ -22,7 +22,9 @@ public class SseController {
     @GetMapping("/connect")
     public SseEmitter subscribe(){
         //sseEmitter 객체 안에 클라이언트의 정보가 담겨져 있다.
+
         SseEmitter sseEmitter = new SseEmitter( 14400 * 60 * 1000L); // 10일 정도  emitter 유효기간 설정
+        System.out.println(sseEmitter);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         sseEmitterRegistry.addSseEmitter(email,sseEmitter);
 

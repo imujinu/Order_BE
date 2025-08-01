@@ -38,7 +38,7 @@ public class OrderingService {
     private final StockInventoryService stockInventoryService;
     private final StockRabbitMqService stockRabbitMqService;
     private final SseAlarmService sseAlarmService;
-    public Object create(List<OrderCreateDto> orderCreateDto) {
+    public Ordering create(List<OrderCreateDto> orderCreateDto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("존재하지 않는 유저입니다."));
         Ordering ordering = orderingRepository.save(Ordering.builder()
@@ -53,7 +53,7 @@ public class OrderingService {
                     .orElseThrow(() -> new EntityNotFoundException("상품이 존재하지 않습니다."));
 
             if (a.getProductCount() > product.getStockQuantity()) {
-               sb.append(product.getName() + "의 재고가 부족합니다.\n");
+               throw new IllegalArgumentException("재고 부족");
             }else{
                 // 1. 동시에 접근하는 상황에서 update 값의 정합성이 깨지고 갱신이상이 발생
                 // 2. spring 버전이나 mysql 버전에 따라 jpa에서 강제에러를 유발시켜 대부분의 요청 실패 발생
@@ -66,12 +66,10 @@ public class OrderingService {
             }
         });
 
-        if(!sb.isEmpty()){
-            throw new IllegalArgumentException(sb.toString());
-        }else{
+
             ordering.getOrderingDetails().addAll(orderingDetails);
             return ordering;
-        }
+
     }
 
 
@@ -120,22 +118,28 @@ public class OrderingService {
             Product product = productRepository.findById(a.getProductId())
                     .orElseThrow(() -> new EntityNotFoundException("상품이 존재하지 않습니다."));
 
-            if (a.getProductCount() > product.getStockQuantity()) {
-                throw new IllegalArgumentException( "재고부족");
-            }else{
+                // redis 2개 최댓값 3개
 
-                // redis에서 재고수량 확인 및 재고수량 감소 처리
+            // 레디스 조회
+            // 사용자 A : 객실 조회 2개
+
+            // rdb :
+            // redis에서 재고수량 확인 및 재고수량 감소 처리
               int newQuantity =  stockInventoryService.decreaseStockQuantity(a.getProductId(), a.getProductCount());
+
+              // 유효성 검증
               if(newQuantity < 0 ){
                   throw new IllegalArgumentException( "재고부족");
               }
+
+              // 레디스 업데이트
+
                   orderingDetails.add(OrderingDetail.builder()
                         .product(product)
                         .quantity(a.getProductCount())
                         .ordering(ordering)
                         .build());
                 stockRabbitMqService.publish(a.getProductId(), a.getProductCount());
-            }
 
         });
             // 주문 성공 시 admin 유저에게 메세지 전송
