@@ -3,18 +3,27 @@ package com.order.ordersystem.common.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.order.ordersystem.common.dto.SseMessageDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.connection.Message;
+import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
-public class SseAlarmService {
-    //SseEmitter는 연결된 사용자 정보(ip, MacAddress 정보 등...) 를 의미
-    // map에는 연결된 클라이언트 정보 들이 담겨져 있다.
-    private Map<String, SseEmitter> emitterMap = new HashMap();
+public class SseAlarmService implements MessageListener {
+
+    private final SseEmitterRegistry sseEmitterRegistry;
+    private final RedisTemplate<String,String> redisTemplate;
+
+    public SseAlarmService(SseEmitterRegistry sseEmitterRegistry, @Qualifier("ssePubSub") RedisTemplate<String, String> redisTemplate) {
+        this.sseEmitterRegistry = sseEmitterRegistry;
+        this.redisTemplate = redisTemplate;
+    }
+
+
     // 특정 사용자에게 message 발송
     //productId는 내가 보내줄 알림 메시지
     public void publishMessage(String receiver, String sender, Long orderingId){
@@ -32,21 +41,47 @@ public class SseAlarmService {
         }
 
 
-    // emitter 객체를 통해 메시지 전송
-    SseEmitter sseEmitter = emitterMap.get(receiver);
+        // emitter 객체를 통해 메시지 전송
+        SseEmitter sseEmitter = sseEmitterRegistry.getEmitterMap(sender);
+        // emitter객체가 현재 서버에 있으면, 직접 알림 발송, 그렇지 않으면 redis에 publish
+        if(sseEmitter!=null){
         try {
             sseEmitter.send(SseEmitter.event().name("ordered").data(data));
+    // 사용자가 로그아웃(새로고침) 후에 다시 화면에 들어왔을 때 알림메시지가 남아있으려면 DB에 추가적으로 저장 필요
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-    // 사용자가 로그아웃(새로고침) 후에 다시 화면에 들어왔을 때 알림메시지가 남아있으려면 DB에 추가적으로 저장 필요
-
+        }else{
+            //퍼블리쉬하고
+            redisTemplate.convertAndSend("order-channel", data);
+        }
     }
 
-    public void addSseEmitter(String email, SseEmitter sseEmitter){
-        emitterMap.put(email,sseEmitter);
-        System.out.println(emitterMap);
-    }
+    @Override
+    public void onMessage(Message message, byte[] pattern) {
+        // Message : 실질적인 메시지가 담겨있는 객체
+        // pattern : 채널명
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            SseMessageDto dto = objectMapper.readValue(message.getBody(),SseMessageDto.class);
+            System.out.println("dto : " + dto);
+            System.out.println("channel : " + new String(pattern));
+            //여러개의 채널을 구독하고 있을 경우, 채널명으로 분기처리
 
+            SseEmitter sseEmitter = sseEmitterRegistry.getEmitterMap(dto.getReceiver());
+            // emitter객체가 현재 서버에 있으면, 직접 알림 발송, 그렇지 않으면 redis에 publish
+            if(sseEmitter!=null){
+                try {
+                    sseEmitter.send(SseEmitter.event().name("ordered").data(dto));
+                    // 사용자가 로그아웃(새로고침) 후에 다시 화면에 들어왔을 때 알림메시지가 남아있으려면 DB에 추가적으로 저장 필요
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
