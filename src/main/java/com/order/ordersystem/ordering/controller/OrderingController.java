@@ -9,6 +9,7 @@ import com.order.ordersystem.ordering.service.OrderingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,9 +22,9 @@ public class OrderingController {
 
     @PostMapping("/create")
     ResponseEntity<?> create(@RequestBody List<OrderCreateDto> orderCreateDto){
-        Object orderResult = orderingService.createConcurrent(orderCreateDto);
+        Long orderId = orderingService.createConcurrent(orderCreateDto);
         return new ResponseEntity<>(CommonDto.builder()
-                .result(orderResult)
+                .result(orderId)
                 .statusCode(HttpStatus.CREATED.value())
                 .statusMessage("주문완료")
                 .build(), HttpStatus.CREATED);
@@ -46,6 +47,17 @@ public class OrderingController {
                 .result(dtos)
                 .statusCode(HttpStatus.CREATED.value())
                 .statusMessage("주문 목록 조회 완료")
+                .build(), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/cancel/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> orderCancel(@PathVariable Long id){
+        Ordering ordering = orderingService.cancel(id);
+        return new ResponseEntity<>(CommonDto.builder()
+                .result(ordering.getId())
+                .statusCode(HttpStatus.CREATED.value())
+                .statusMessage("주문 취소 성공")
                 .build(), HttpStatus.CREATED);
     }
 }

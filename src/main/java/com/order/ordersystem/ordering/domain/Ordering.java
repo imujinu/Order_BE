@@ -31,4 +31,8 @@ public class Ordering extends BaseTimeEntity {
     @OneToMany(mappedBy = "ordering", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     private List<OrderingDetail> orderingDetails = new ArrayList<>();
+
+    public void cancel(){
+        this.orderStatus=OrderStatus.CANCELD;
+    }
 }

@@ -43,4 +43,8 @@ public class Product {
     public void minusStock(int productCount) {
         this.stockQuantity-=productCount;
     }
+
+    public void plusStock(int productCount){
+        this.stockQuantity+=productCount;
+    }
 }

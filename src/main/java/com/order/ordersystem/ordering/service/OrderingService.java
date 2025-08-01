@@ -1,5 +1,6 @@
 package com.order.ordersystem.ordering.service;
 
+import com.order.ordersystem.common.service.SseAlarmService;
 import com.order.ordersystem.common.service.StockInventoryService;
 import com.order.ordersystem.common.service.StockRabbitMqService;
 import com.order.ordersystem.member.domain.Member;
@@ -36,7 +37,7 @@ public class OrderingService {
     private final ProductRepository productRepository;
     private final StockInventoryService stockInventoryService;
     private final StockRabbitMqService stockRabbitMqService;
-
+    private final SseAlarmService sseAlarmService;
     public Object create(List<OrderCreateDto> orderCreateDto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("존재하지 않는 유저입니다."));
@@ -105,7 +106,7 @@ public class OrderingService {
 
     //격리 레벨을 낮춤으로서 성능 향상과, lock 관련 문제 원천 차단.
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public Object createConcurrent(List<OrderCreateDto> orderCreateDto) {
+    public Long createConcurrent(List<OrderCreateDto> orderCreateDto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("존재하지 않는 유저입니다."));
         Ordering ordering = orderingRepository.save(Ordering.builder()
@@ -120,7 +121,7 @@ public class OrderingService {
                     .orElseThrow(() -> new EntityNotFoundException("상품이 존재하지 않습니다."));
 
             if (a.getProductCount() > product.getStockQuantity()) {
-                sb.append(product.getName() + "의 재고가 부족합니다.\n");
+                throw new IllegalArgumentException( "재고부족");
             }else{
 
                 // redis에서 재고수량 확인 및 재고수량 감소 처리
@@ -135,15 +136,25 @@ public class OrderingService {
                         .build());
                 stockRabbitMqService.publish(a.getProductId(), a.getProductCount());
             }
-        });
 
-        if(!sb.isEmpty()){
-            throw new IllegalArgumentException(sb.toString());
-        }else{
+        });
+            // 주문 성공 시 admin 유저에게 메세지 전송
+
+            sseAlarmService.publishMessage("admin@naver.com", email, ordering.getId());
             ordering.getOrderingDetails().addAll(orderingDetails);
-            return ordering;
-        }
+            return ordering.getId();
     }
 
 
+    public Ordering cancel(Long id) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("존재하지 않는 유저입니다."));
+        Ordering ordering = orderingRepository.findByIdAndMember(id,member).orElseThrow(()->new EntityNotFoundException("주문이 존재하지 않습니다."));
+        ordering.cancel();
+        ordering.getOrderingDetails().stream().forEach(a->{
+            stockInventoryService.increaseStockQuantity(a.getProduct().getId(), a.getQuantity());
+        stockRabbitMqService.publishIncrease(a.getProduct().getId(), a.getQuantity());
+        });
+        return ordering;
+    }
 }

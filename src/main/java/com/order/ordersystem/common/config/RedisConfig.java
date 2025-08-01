@@ -68,6 +68,5 @@ public class RedisConfig {
         // 객체로 value값을 써줄 수도 있다.
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         return redisTemplate;
-
     }
 }

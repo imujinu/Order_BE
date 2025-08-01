@@ -28,7 +28,8 @@ public class RabbitMqConfig {
     public Queue stockQueue(){
         return new Queue("stockDecreaseQueue", true);
     }
-
+    @Bean
+    public Queue increaseQueue() { return new Queue("stockIncreaseQueue", true);}
     @Bean
     public ConnectionFactory connectionFactory(){
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory();

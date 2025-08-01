@@ -13,8 +13,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
+
 
 @Component
 @RequiredArgsConstructor
@@ -31,18 +30,45 @@ public class StockRabbitMqService {
 
         rabbitTemplate.convertAndSend("stockDecreaseQueue", dto);
     }
+
+    public void publishIncrease(Long productId, int productCount){
+        StockRabbitMqDto dto = StockRabbitMqDto.builder()
+                .productId(productId)
+                .productCount(productCount)
+                .build();
+
+        rabbitTemplate.convertAndSend("stockIncreaseQueue", dto);
+    }
     // rabbitmq에 발행된 메시지를 수신
     // listener는 단일 스레드로 메시지를 처리하므로, 동시성 이슈 발생 X
-    @RabbitListener(queues = "stockDecreaseQueue")
-    @Transactional
+//    @RabbitListener(queues = "stockDecreaseQueue")
+//    @Transactional
+//    public void subscribe(Message message) throws JsonProcessingException {
+//        String messageBody = new String (message.getBody());
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        StockRabbitMqDto dto = objectMapper.readValue(messageBody, StockRabbitMqDto.class);
+//        Product product = productRepository.findById(dto.getProductId()).orElseThrow(()->new EntityNotFoundException("존재하지 않는 물건입니다."));
+//        product.minusStock(dto.getProductCount());
+//        System.out.println(messageBody);
+//    }
+        @RabbitListener(queues = "stockDecreaseQueue")
     public void subscribe(Message message) throws JsonProcessingException {
-        String messageBody = new String (message.getBody());
-
+        String messageBody = new String(message.getBody());
         ObjectMapper objectMapper = new ObjectMapper();
-        StockRabbitMqDto dto = objectMapper.readValue(messageBody, StockRabbitMqDto.class);
-        Product product = productRepository.findById(dto.getProductId()).orElseThrow(()->new EntityNotFoundException("존재하지 않는 물건입니다."));
-        product.minusStock(dto.getProductCount());
-        System.out.println(messageBody);
-    }
+        StockRabbitMqDto stockRabbitMqDto = objectMapper.readValue(messageBody, StockRabbitMqDto.class);
+        Product product = productRepository.findById(stockRabbitMqDto.getProductId()).orElseThrow(()->new EntityNotFoundException());
+        product.minusStock(stockRabbitMqDto.getProductCount());
+            System.out.println(messageBody);
+        }
 
+        @RabbitListener(queues = "stockIncreaseQueue")
+    public void subscribeIncrease(Message message) throws JsonProcessingException {
+        String messageBody = new String(message.getBody());
+        ObjectMapper objectMapper = new ObjectMapper();
+        StockRabbitMqDto stockRabbitMqDto = objectMapper.readValue(messageBody, StockRabbitMqDto.class);
+        Product product = productRepository.findById(stockRabbitMqDto.getProductId()).orElseThrow(()->new EntityNotFoundException());
+        product.plusStock(stockRabbitMqDto.getProductCount());
+            System.out.println(messageBody);
+        }
 }
