@@ -36,8 +36,16 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(a->a.requestMatchers("/member/create/**", "/member/doLogin/**", "/member/refresh-at", "/product/list" ).permitAll().anyRequest().authenticated())
-                .exceptionHandling(e->
+                .authorizeHttpRequests(a->a.requestMatchers(
+                        "/member/create/**",
+                        "/member/doLogin/**",
+                        "/member/refresh-at",
+                        "/product/list",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html"
+                        ).permitAll().anyRequest().authenticated())
+                        .exceptionHandling(e->
                         e.authenticationEntryPoint(jwtAuthenticationHandler) //401의 경우
                                 .accessDeniedHandler(jwtAuthorizationHandler) // 403의 경우
                 )

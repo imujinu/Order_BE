@@ -79,7 +79,6 @@ public class SseAlarmService implements MessageListener {
                 }
             }
 
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

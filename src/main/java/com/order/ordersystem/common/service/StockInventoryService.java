@@ -23,10 +23,11 @@ public class StockInventoryService {
         int remains = Integer.parseInt(remainObject);
         if(remains<orderQuantity){
             return -1;
+            //
         }else{
 
-        Long finalRemains = redisTemplate.opsForValue().decrement(String.valueOf(productId), orderQuantity);
-        return finalRemains.intValue();
+            Long finalRemains = redisTemplate.opsForValue().decrement(String.valueOf(productId), orderQuantity);
+            return finalRemains.intValue();
         }
     }
     // 주문 취소 시 재고수량 증가

@@ -38,7 +38,6 @@ public class SseController {
 
 
         return sseEmitter;
-
     }
 
     @GetMapping("/disconnect")
