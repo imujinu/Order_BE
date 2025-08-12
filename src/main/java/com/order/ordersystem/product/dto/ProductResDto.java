@@ -12,17 +12,19 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ProductResDto {
     private Long id;
-    private String name;
+    private String productName;
     private String category;
     private int price;
     private int stockQuantity;
+    private String imagePath;
 
     public ProductResDto fromEntity(Product product){
         return ProductResDto.builder()
                 .id(product.getId())
-                .name(product.getName())
+                .productName(product.getName())
                 .category(product.getCategory())
                 .price(product.getPrice())
+                .imagePath(product.getImagePath())
                 .stockQuantity(product.getStockQuantity())
                 .build();
     }

@@ -74,4 +74,10 @@ public class MemberService {
         Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("존재하지 않는 유저입니다."));
         member.deleteMember("Y");
     }
+
+    public Member detail(Long memberId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findById(memberId).orElseThrow(()->new EntityNotFoundException("존재하지 않는 유저입니다."));
+        return member;
+    }
 }

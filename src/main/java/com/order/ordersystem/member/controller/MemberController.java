@@ -83,6 +83,17 @@ public class MemberController {
 
     }
 
+    @GetMapping("/detail/{memberId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> detail(@PathVariable Long memberId){
+        Member member = memberService.detail(memberId);
+        return new ResponseEntity<>(CommonDto.builder()
+                .result(member)
+                .statusCode(HttpStatus.ACCEPTED.value())
+                .statusMessage("회원 조회 완료")
+                .build(),HttpStatus.ACCEPTED);
+    }
+
     @GetMapping("/myinfo")
     public ResponseEntity<?> myInfo(){
         MemberResDto dto  = memberService.myInfo();

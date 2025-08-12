@@ -1,0 +1,55 @@
+2025-08-223 11:17 o.s.b.d.LoggingFailureAnalysisReporter-
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8081 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8081 or configure this application to listen on another port.
+
+2025-08-223 14:12 c.o.o.c.s.CommonExceptionHandler-잘못된 토큰입니다.
+2025-08-223 14:15 c.o.o.c.s.CommonExceptionHandler-JWT String argument cannot be null or empty.
+2025-08-223 15:03 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:03 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:03 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:03 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:04 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:04 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:04 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:04 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:04 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:04 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:05 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:05 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:06 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:06 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:07 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:08 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:08 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:08 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:09 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:09 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:09 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:09 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:12 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:12 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:13 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:13 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:13 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:13 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:14 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:14 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:15 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 15:15 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 16:23 c.o.o.c.s.CommonExceptionHandler-No static resource order/list.
+2025-08-223 16:32 c.o.o.c.s.CommonExceptionHandler-Validation failed for argument [0] in org.springframework.http.ResponseEntity<?> com.order.ordersystem.product.controller.ProductController.create(com.order.ordersystem.product.dto.ProductCreateDto): [Field error in object 'productCreateDto' on field 'productImage': rejected value []; codes [typeMismatch.productCreateDto.productImage,typeMismatch.productImage,typeMismatch.org.springframework.web.multipart.MultipartFile,typeMismatch]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [productCreateDto.productImage,productImage]; arguments []; default message [productImage]]; default message [Failed to convert property value of type 'java.lang.String' to required type 'org.springframework.web.multipart.MultipartFile' for property 'productImage'; Cannot convert value of type 'java.lang.String' to required type 'org.springframework.web.multipart.MultipartFile' for property 'productImage': no matching editors or conversion strategy found]] 
+2025-08-223 16:32 c.o.o.c.s.CommonExceptionHandler-Validation failed for argument [0] in org.springframework.http.ResponseEntity<?> com.order.ordersystem.product.controller.ProductController.create(com.order.ordersystem.product.dto.ProductCreateDto): [Field error in object 'productCreateDto' on field 'productImage': rejected value []; codes [typeMismatch.productCreateDto.productImage,typeMismatch.productImage,typeMismatch.org.springframework.web.multipart.MultipartFile,typeMismatch]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [productCreateDto.productImage,productImage]; arguments []; default message [productImage]]; default message [Failed to convert property value of type 'java.lang.String' to required type 'org.springframework.web.multipart.MultipartFile' for property 'productImage'; Cannot convert value of type 'java.lang.String' to required type 'org.springframework.web.multipart.MultipartFile' for property 'productImage': no matching editors or conversion strategy found]] 
+2025-08-223 16:35 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 16:36 c.o.o.c.s.CommonExceptionHandler-Method parameter 'memberId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "undefined"
+2025-08-223 16:38 c.o.o.c.s.CommonExceptionHandler-이메일 또는 비밀번호가 일치하지 않습니다.
+2025-08-223 16:39 c.o.o.c.s.CommonExceptionHandler-주문 정보가 없습니다.
